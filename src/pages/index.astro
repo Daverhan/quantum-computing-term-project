@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
+---
+
+<BaseLayout title="Quantum Computing Term Project">
+  <main>
+    <section class="flex flex-col text-center">
+      <h1 class="mt-2 text-3xl">Quantum Computing Term Project</h1>
+      <h2 class="text-xl mt-1">
+        Select a card below to use the Quantum Algorithm
+      </h2>
+      <div class="flex flex-col items-center gap-4 my-4 mx-1">
+        <Card
+          title="Deutsch-Joza Algorithm"
+          description="The Deutsch-Jozsa algorithm is a quantum method for determining if a function is constant or balanced in one query."
+          link="/algorithms/deutsch-joza"
+        />
+        <Card
+          title="Simon's Algorithm"
+          description="Simon's algorithm is a quantum algorithm that efficiently solves the problem of finding a hidden binary string."
+          link="/algorithms/simons"
+        />
+        <Card
+          title="Quantum Fourier Transform"
+          description="The Quantum Fourier Transform is a quantum algorithm that transforms quantum states into their frequency components."
+          link="/algorithms/quantum-fourier-transform"
+        />
+        <Card
+          title="Bernstein-Vazirani Algorithm"
+          description="The Bernstein-Vazirani algorithm is a quantum algorithm that determines a hidden binary string with a single query."
+          link="/algorithms/bernstein-vazirani"
+        />
+        <Card
+          title="Random Number Generator"
+          description="A Quantum Random Number Generator uses quantum mechanics to produce truly random numbers."
+          link="/algorithms/random-number-generator"
+        />
+      </div>
+    </section>
+  </main>
+</BaseLayout>
