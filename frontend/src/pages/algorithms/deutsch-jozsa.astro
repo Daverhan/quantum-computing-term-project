@@ -29,15 +29,31 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
         />
       </form>
 
-      <div id="algorithm-results" class="text-center text-2xl mt-2"></div>
+      <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
 
       <script lang="ts" is:inline>
+        const MIN_NUMBER_QUBITS = 1;
+        const MAX_NUMBER_QUBITS = 5;
+
+        function displayInvalidNumQubitsMessage() {
+          const resultsDiv = document.getElementById("algorithm-status");
+          resultsDiv.innerHTML = `The number of qubits must be between ${MIN_NUMBER_QUBITS} and ${MAX_NUMBER_QUBITS}`;
+        }
+
         function generateInputFields() {
           const numQubits = document.getElementById("num-qubits").value;
-          const numInputs = Math.pow(2, numQubits);
-          const container = document.getElementById("boolean-function-inputs");
 
+          if (numQubits < MIN_NUMBER_QUBITS || numQubits > MAX_NUMBER_QUBITS) {
+            displayInvalidNumQubitsMessage();
+            return;
+          }
+
+          const numInputs = Math.pow(2, numQubits);
+
+          const container = document.getElementById("boolean-function-inputs");
+          const resultsDiv = document.getElementById("algorithm-status");
           container.innerHTML = "";
+          resultsDiv.innerHTML = "";
 
           for (let i = 0; i < numInputs; i++) {
             const binaryString = i.toString(2).padStart(numQubits, "0");
@@ -62,16 +78,36 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
         }
 
         async function submitForm() {
+          let invalidInput = false;
+
           const form = document.getElementById("dj-form");
           const formData = new FormData(form);
           const numQubits = formData.get("num_qubits");
+
+          if (numQubits < MIN_NUMBER_QUBITS || numQubits > MAX_NUMBER_QUBITS) {
+            displayInvalidNumQubitsMessage();
+            return;
+          }
+
           const booleanFunctionInputs = {};
 
           formData.forEach((value, key) => {
             if (key.startsWith("input_")) {
+              if (
+                value === "" ||
+                (Number(value) !== 0 && Number(value) !== 1)
+              ) {
+                const resultsDiv = document.getElementById("algorithm-status");
+                resultsDiv.innerHTML =
+                  "The binary function outputs must be 0 or 1 and must not be empty";
+                invalidInput = true;
+              }
+
               booleanFunctionInputs[key] = value;
             }
           });
+
+          if (invalidInput) return;
 
           const data = {
             numQubits,
@@ -93,14 +129,9 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
             if (response.ok) {
               response_json = await response.json();
               const result = response_json["result"];
-              const resultsDiv = document.getElementById("algorithm-results");
 
-              resultsDiv.innerHTML = "";
-
-              const h2 = document.createElement("h2");
-              h2.innerText = `The function is ${result}`;
-
-              resultsDiv.appendChild(h2);
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = `The function is ${result}`;
             }
           } catch (error) {
             console.error("Error: ", error);
