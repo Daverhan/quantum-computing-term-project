@@ -5,6 +5,108 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
 <BaseLayout title="Deutsch-Jozsa Algorithm">
   <main>
-    <AlgorithmLayout title="Deutsch-Jozsa Algorithm" />
+    <AlgorithmLayout title="Deutsch-Jozsa Algorithm">
+      <form id="dj-form" class="flex flex-col items-center gap-2 mt-2">
+        <div>
+          <label class="text-end mr-2" for="num-qubits">Number of Qubits:</label
+          >
+          <input
+            class="w-12"
+            type="number"
+            id="num-qubits"
+            name="num_qubits"
+            min="1"
+            max="5"
+            onchange="generateInputFields()"
+          />
+        </div>
+        <div id="boolean-function-inputs"></div>
+        <input
+          class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xl"
+          type="button"
+          onclick="submitForm()"
+          value="Run Algorithm"
+        />
+      </form>
+
+      <div id="algorithm-results" class="text-center text-2xl mt-2"></div>
+
+      <script lang="ts" is:inline>
+        function generateInputFields() {
+          const numQubits = document.getElementById("num-qubits").value;
+          const numInputs = Math.pow(2, numQubits);
+          const container = document.getElementById("boolean-function-inputs");
+
+          container.innerHTML = "";
+
+          for (let i = 0; i < numInputs; i++) {
+            const binaryString = i.toString(2).padStart(numQubits, "0");
+            const inputWrapper = document.createElement("div");
+            inputWrapper.classList.add("input-wrapper");
+            inputWrapper.classList.add("mb-2");
+
+            const label = document.createElement("label");
+            label.innerText = `f(${binaryString}): `;
+            label.htmlFor = `input-${binaryString}`;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = `input-${binaryString}`;
+            input.name = `input_${binaryString}`;
+            input.classList.add("w-12");
+
+            inputWrapper.appendChild(label);
+            inputWrapper.appendChild(input);
+            container.appendChild(inputWrapper);
+          }
+        }
+
+        async function submitForm() {
+          const form = document.getElementById("dj-form");
+          const formData = new FormData(form);
+          const numQubits = formData.get("num_qubits");
+          const booleanFunctionInputs = {};
+
+          formData.forEach((value, key) => {
+            if (key.startsWith("input_")) {
+              booleanFunctionInputs[key] = value;
+            }
+          });
+
+          const data = {
+            numQubits,
+            booleanFunctionInputs,
+          };
+
+          try {
+            const response = await fetch(
+              "http://localhost:5000/api/algorithms/deutsch-jozsa",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              }
+            );
+
+            if (response.ok) {
+              response_json = await response.json();
+              const result = response_json["result"];
+              const resultsDiv = document.getElementById("algorithm-results");
+
+              resultsDiv.innerHTML = "";
+
+              const h2 = document.createElement("h2");
+              h2.innerText = `The function is ${result}`;
+
+              resultsDiv.appendChild(h2);
+            }
+          } catch (error) {
+            console.error("Error: ", error);
+          }
+        }
+      </script>
+    </AlgorithmLayout>
   </main>
 </BaseLayout>

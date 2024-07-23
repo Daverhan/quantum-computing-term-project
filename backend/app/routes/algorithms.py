@@ -1,7 +1,23 @@
 from flask import Blueprint, request, jsonify
 from app.quantum_algorithms.bernstein_vazirani import execute_bernstein_vazirani
+from app.quantum_algorithms.deutsch_jozsa import execute_deutsch_jozsa
 
 algorithms_bp = Blueprint('algorithms', __name__)
+
+
+@algorithms_bp.route('/deutsch-jozsa', methods=['POST'])
+def deutsch_jozsa():
+    request_json = request.get_json()
+
+    num_qubits = request_json.get('numQubits')
+    boolean_function_inputs = request_json.get('booleanFunctionInputs')
+
+    if not num_qubits:
+        return jsonify({'error': 'The number of qubits was not found in the request'}), 400
+
+    execute_deutsch_jozsa(num_qubits, boolean_function_inputs)
+
+    return jsonify({'result': 'constant'}), 200
 
 
 @algorithms_bp.route('/bernstein-vazirani', methods=['POST'])
