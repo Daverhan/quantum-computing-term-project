@@ -8,8 +8,7 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
     <AlgorithmLayout title="Simon's Algorithm">
       <form id="simon-form" class="flex flex-col items-center gap-2 mt-2">
         <div>
-          <label class="text-end mr-2" for="num-qubits">Number of Qubits:</label
-          >
+          <label class="text-end mr-2" for="num-qubits">Number of Qubits:</label>
           <input
             class="w-12"
             type="number"
@@ -20,7 +19,7 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
             onchange="generateInputFields()"
           />
         </div>
-        <div id="boolean-function-inputs"></div>
+        <div id="boolean-function-inputs" class="flex flex-col items-center gap-2 mt-2"></div>
         <input
           class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xl"
           type="button"
@@ -30,6 +29,8 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
       </form>
 
       <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
+      <div id="result" class="text-center mt-4"></div>
+      <pre id="circuit-diagram" class="text-center text-xl mt-2"></pre>
 
       <script lang="ts" is:inline>
         const MIN_NUMBER_QUBITS = 1;
@@ -134,21 +135,29 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
             if (response.ok) {
               const responseJson = await response.json();
               const result = responseJson["result"];
+              const circuit = responseJson["circuit"];
 
-              const resultsDiv = document.getElementById("algorithm-status");
+              const resultsDiv = document.getElementById("result");
               resultsDiv.innerHTML = `The hidden string is ${result}`;
+
+              const circuitDiv = document.getElementById("circuit-diagram");
+              circuitDiv.innerText = circuit;
+
+              const statusDiv = document.getElementById("algorithm-status");
+              statusDiv.innerHTML = "Simon's algorithm executed successfully.";
             } else {
-              const resultsDiv = document.getElementById("algorithm-status");
-              resultsDiv.innerHTML = "Failed to run the algorithm";
+              const responseJson = await response.json();
+              const statusDiv = document.getElementById("algorithm-status");
+              statusDiv.innerHTML = `Error: ${responseJson.error}`;
             }
           } catch (error) {
             console.error("Error: ", error);
-            const resultsDiv = document.getElementById("algorithm-status");
-            resultsDiv.innerHTML =
-              "An error occurred while running the algorithm";
+            const statusDiv = document.getElementById("algorithm-status");
+            statusDiv.innerHTML = "An error occurred while running the algorithm.";
           }
         }
       </script>
     </AlgorithmLayout>
   </main>
 </BaseLayout>
+

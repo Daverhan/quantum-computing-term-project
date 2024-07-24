@@ -2,8 +2,22 @@ from qiskit import QuantumCircuit, transpile
 from qiskit_aer import Aer
 
 
-# WRONG! DO NOT BELIEVE ITS LIES.
-def execute_deutsch_jozsa(num_qubits, boolean_function_inputs):
+def create_oracle(num_qubits, function_values):
+    oracle = QuantumCircuit(num_qubits + 1)
+    for i, value in enumerate(function_values):
+        if value == '1':
+            binary_index = format(i, f'0{num_qubits}b')
+            for j, bit in enumerate(binary_index):
+                if bit == '0':
+                    oracle.x(j)
+            oracle.mcx(list(range(num_qubits)), num_qubits)
+            for j, bit in enumerate(binary_index):
+                if bit == '0':
+                    oracle.x(j)
+    return oracle
+
+def execute_deutsch_jozsa(num_qubits, string):
+    oracle = create_oracle(num_qubits, string)
     qc = QuantumCircuit(num_qubits + 1, num_qubits)
 
     qc.h(range(num_qubits))
@@ -13,9 +27,7 @@ def execute_deutsch_jozsa(num_qubits, boolean_function_inputs):
 
     qc.barrier()
 
-    for i, bit in enumerate(boolean_function_inputs):
-        if bit == '1':
-            qc.cx(i, num_qubits)
+    qc.append(oracle, range(num_qubits + 1))
 
     qc.barrier()
 
@@ -27,14 +39,14 @@ def execute_deutsch_jozsa(num_qubits, boolean_function_inputs):
 
     backend = Aer.get_backend('qasm_simulator')
     transpiled_circuit = transpile(qc, backend)
-    job = backend.run(transpiled_circuit, shots=1)
+    job = backend.run(transpiled_circuit, shots=1024)
     result = job.result()
     counts = result.get_counts()
 
-    print("Measurement results:", counts)
+    print(counts)
+    if '0' * num_qubits in counts and counts['0' * num_qubits] == 1024:
+        constant_or_balanced = 'constant'
+    else:
+        constant_or_balanced = 'balanced'
 
-    constant_or_balanced = 'constant' if '0' * num_qubits in counts else 'balanced'
-
-    circuit_diagram = qc.draw()
-    
-    return constant_or_balanced, circuit_diagram
+    return constant_or_balanced, qc.draw()

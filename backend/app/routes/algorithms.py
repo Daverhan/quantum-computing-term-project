@@ -14,13 +14,12 @@ def deutsch_jozsa():
 
     num_qubits = int(request_json.get('numQubits'))
     boolean_function_inputs = request_json.get('booleanFunctionInputs')
-    boolean_function_bits = [int(boolean_function_inputs[f"input_{i:0{num_qubits}b}"]) for i in range(2**num_qubits)]
+    string = ''.join(boolean_function_inputs.values())
 
     if not num_qubits:
         return jsonify({'error': 'The number of qubits was not found in the request'}), 400
 
-    constant_or_balanced, quantum_circuit = execute_deutsch_jozsa(num_qubits, boolean_function_bits)
-    print(constant_or_balanced)
+    constant_or_balanced, quantum_circuit = execute_deutsch_jozsa(num_qubits, string)
 
     return jsonify({'result': constant_or_balanced, 'circuit': str(quantum_circuit)}), 200
 
@@ -31,14 +30,14 @@ def simons():
 
     num_qubits = int(request_json.get('numQubits'))
     boolean_function_inputs = request_json.get('booleanFunctionInputs')
-    boolean_function_bits = [int(boolean_function_inputs[f"input_{i:0{num_qubits}b}"]) for i in range(2**num_qubits)]
+    string = ''.join(boolean_function_inputs.values())
 
     if not num_qubits:
         return jsonify({'error': 'The number of qubits was not found in the request'}), 400
 
-    execute_simons(num_qubits, boolean_function_inputs)
+    hidden_string, quantum_circuit = execute_simons(num_qubits, string)
 
-    return jsonify({'result': 'N/A'}), 200
+    return jsonify({'result': hidden_string, 'circuit': str(quantum_circuit)}), 200
 
 
 @algorithms_bp.route('/quantum-fourier-transform', methods=['POST'])
@@ -50,9 +49,9 @@ def quantum_fourier_transform():
     if not bitstring:
         return jsonify({'error': 'The bitstring was not found in the request'}), 400
 
-    execute_quantum_fourier_transform(bitstring)
+    new_bitstring, quantum_circuit = execute_quantum_fourier_transform(bitstring)
 
-    return jsonify({'result': 'N/A'}), 200
+    return jsonify({'result': new_bitstring, 'circuit': quantum_circuit}), 200
 
 
 @algorithms_bp.route('/bernstein-vazirani', methods=['POST'])
