@@ -8,8 +8,7 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
     <AlgorithmLayout title="Deutsch-Jozsa Algorithm">
       <form id="dj-form" class="flex flex-col items-center gap-2 mt-2">
         <div>
-          <label class="text-end mr-2" for="num-qubits">Number of Qubits:</label
-          >
+          <label class="text-end mr-2" for="num-qubits">Number of Qubits:</label>
           <input
             class="w-12"
             type="number"
@@ -20,7 +19,7 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
             onchange="generateInputFields()"
           />
         </div>
-        <div id="boolean-function-inputs"></div>
+        <div id="boolean-function-inputs" class="flex flex-col items-center gap-2 mt-2"></div>
         <input
           class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xl"
           type="button"
@@ -30,6 +29,8 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
       </form>
 
       <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
+      <div id="result" class="text-center mt-4"></div>
+      <pre id="circuit-diagram" class="text-center text-xl mt-2"></pre>
 
       <script lang="ts" is:inline>
         const MIN_NUMBER_QUBITS = 1;
@@ -66,9 +67,11 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
             label.htmlFor = `input-${binaryString}`;
 
             const input = document.createElement("input");
-            input.type = "text";
+            input.type = "number";
             input.id = `input-${binaryString}`;
             input.name = `input_${binaryString}`;
+            input.min = "0";
+            input.max = "1";
             input.classList.add("w-12");
 
             inputWrapper.appendChild(label);
@@ -128,14 +131,20 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
             );
 
             if (response.ok) {
-              response_json = await response.json();
+              const response_json = await response.json();
               const result = response_json["result"];
+              const circuit = response_json["circuit"];
 
-              const resultsDiv = document.getElementById("algorithm-status");
-              resultsDiv.innerHTML = `The function is ${result}`;
+
+              const resultDiv = document.getElementById("result");
+              resultDiv.innerHTML = `The function is ${result}`;
+
+              const circuitDiv = document.getElementById("circuit-diagram");
+              circuitDiv.innerText = circuit;
             } else {
+              const response_json = await response.json();
               const resultsDiv = document.getElementById("algorithm-status");
-              resultsDiv.innerHTML = "Failed to run the algorithm";
+              resultsDiv.innerHTML = `Error: ${response_json.error}`;
             }
           } catch (error) {
             console.error("Error: ", error);
@@ -148,3 +157,4 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
     </AlgorithmLayout>
   </main>
 </BaseLayout>
+

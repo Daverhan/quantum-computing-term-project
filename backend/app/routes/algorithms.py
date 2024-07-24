@@ -12,23 +12,26 @@ algorithms_bp = Blueprint('algorithms', __name__)
 def deutsch_jozsa():
     request_json = request.get_json()
 
-    num_qubits = request_json.get('numQubits')
+    num_qubits = int(request_json.get('numQubits'))
     boolean_function_inputs = request_json.get('booleanFunctionInputs')
+    boolean_function_bits = [int(boolean_function_inputs[f"input_{i:0{num_qubits}b}"]) for i in range(2**num_qubits)]
 
     if not num_qubits:
         return jsonify({'error': 'The number of qubits was not found in the request'}), 400
 
-    execute_deutsch_jozsa(num_qubits, boolean_function_inputs)
+    constant_or_balanced, quantum_circuit = execute_deutsch_jozsa(num_qubits, boolean_function_bits)
+    print(constant_or_balanced)
 
-    return jsonify({'result': 'constant'}), 200
+    return jsonify({'result': constant_or_balanced, 'circuit': str(quantum_circuit)}), 200
 
 
 @algorithms_bp.route('/simons', methods=['POST'])
 def simons():
     request_json = request.get_json()
 
-    num_qubits = request_json.get('numQubits')
+    num_qubits = int(request_json.get('numQubits'))
     boolean_function_inputs = request_json.get('booleanFunctionInputs')
+    boolean_function_bits = [int(boolean_function_inputs[f"input_{i:0{num_qubits}b}"]) for i in range(2**num_qubits)]
 
     if not num_qubits:
         return jsonify({'error': 'The number of qubits was not found in the request'}), 400
