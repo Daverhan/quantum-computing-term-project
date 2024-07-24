@@ -32,7 +32,7 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
       <script lang="ts" is:inline>
         const MIN_BITS = 1;
-        const MAX_BITS = 64;
+        const MAX_BITS = 29;
 
         async function submitForm() {
           const form = document.getElementById("qrng-form");
@@ -80,11 +80,11 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
           } catch (error) {
             console.error("Error: ", error);
             const resultsDiv = document.getElementById("algorithm-status");
-            resultsDiv.innerHTML = "Error occurred while generating the random number.";
+            resultsDiv.innerHTML =
+              "Error occurred while generating the random number.";
           }
         }
       </script>
     </AlgorithmLayout>
   </main>
 </BaseLayout>
-
