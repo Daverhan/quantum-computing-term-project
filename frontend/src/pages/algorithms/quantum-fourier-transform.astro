@@ -5,6 +5,82 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
 <BaseLayout title="Quantum Fourier Transform">
   <main>
-    <AlgorithmLayout title="Quantum Fourier Transform" />
+    <AlgorithmLayout title="Quantum Fourier Transform">
+      <form id="qft-form" class="flex flex-col items-center gap-2 mt-2">
+        <div>
+          <label class="text-end mr-2" for="bitstring"
+            >Initial State (bitstring):</label
+          >
+          <input class="w-24" type="text" id="bitstring" name="bitstring" />
+        </div>
+        <input
+          class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xl"
+          type="button"
+          onclick="submitForm()"
+          value="Run Algorithm"
+        />
+      </form>
+
+      <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
+
+      <script lang="ts" is:inline>
+        const MIN_LENGTH = 1;
+        const MAX_LENGTH = 10;
+
+        async function submitForm() {
+          const form = document.getElementById("qft-form");
+          const formData = new FormData(form);
+          const bitstring = formData.get("bitstring").toString();
+
+          if (!/^[01]+$/.test(bitstring)) {
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML =
+              "The bitstring must be a valid binary string containing only 0s and 1s";
+            return;
+          }
+
+          const numQubits = bitstring.length;
+
+          if (numQubits < MIN_LENGTH || numQubits > MAX_LENGTH) {
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML = `The bitstring length must be between ${MIN_LENGTH} and ${MAX_LENGTH}`;
+            return;
+          }
+
+          const data = {
+            numQubits,
+            bitstring,
+          };
+
+          try {
+            const response = await fetch(
+              "http://localhost:5000/api/algorithms/quantum-fourier-transform",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              }
+            );
+
+            if (response.ok) {
+              const responseJson = await response.json();
+              const result = responseJson["result"];
+
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = `The result of the QFT is ${result}`;
+            } else {
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = "Failed to run the algorithm";
+            }
+          } catch (error) {
+            console.error("Error: ", error);
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML = "Error occurred while running the algorithm";
+          }
+        }
+      </script>
+    </AlgorithmLayout>
   </main>
 </BaseLayout>

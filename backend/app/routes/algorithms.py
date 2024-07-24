@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.quantum_algorithms.bernstein_vazirani import execute_bernstein_vazirani
 from app.quantum_algorithms.deutsch_jozsa import execute_deutsch_jozsa
 from app.quantum_algorithms.simons import execute_simons
+from app.quantum_algorithms.quantum_fourier_transform import execute_quantum_fourier_transform
 
 algorithms_bp = Blueprint('algorithms', __name__)
 
@@ -32,6 +33,20 @@ def simons():
         return jsonify({'error': 'The number of qubits was not found in the request'}), 400
 
     execute_simons(num_qubits, boolean_function_inputs)
+
+    return jsonify({'result': 'N/A'}), 200
+
+
+@algorithms_bp.route('/quantum-fourier-transform', methods=['POST'])
+def quantum_fourier_transform():
+    request_json = request.get_json()
+
+    bitstring = request_json.get('bitstring')
+
+    if not bitstring:
+        return jsonify({'error': 'The bitstring was not found in the request'}), 400
+
+    execute_quantum_fourier_transform(bitstring)
 
     return jsonify({'result': 'N/A'}), 200
 
