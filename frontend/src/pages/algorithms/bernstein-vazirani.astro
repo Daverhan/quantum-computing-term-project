@@ -5,6 +5,76 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
 <BaseLayout title="Bernstein-Vazirani Algorithm">
   <main>
-    <AlgorithmLayout title="Bernstein-Vazirani Algorithm" />
+    <AlgorithmLayout title="Bernstein-Vazirani Algorithm">
+      <form id="bv-form" class="flex flex-col items-center gap-2 mt-2">
+        <div>
+          <label class="text-end mr-2" for="bitstring">Hidden Bitstring:</label>
+          <input class="w-24" type="text" id="bitstring" name="bitstring" />
+        </div>
+        <input
+          class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xl"
+          type="button"
+          onclick="submitForm()"
+          value="Run Algorithm"
+        />
+      </form>
+
+      <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
+
+      <script lang="ts" is:inline>
+        const MIN_LENGTH = 1;
+        const MAX_LENGTH = 29;
+
+        async function submitForm() {
+          const form = document.getElementById("bv-form");
+          const formData = new FormData(form);
+          const bitstring = formData.get("bitstring").toString();
+
+          if (!/^[01]+$/.test(bitstring)) {
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML = `The bitstring must be a valid binary string containing only 0s and 1s`;
+            return;
+          }
+
+          if (bitstring.length < MIN_LENGTH || bitstring.length > MAX_LENGTH) {
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML = `The bitstring length must be between ${MIN_LENGTH} and ${MAX_LENGTH}`;
+            return;
+          }
+
+          const data = {
+            bitstring,
+          };
+
+          try {
+            const response = await fetch(
+              "http://localhost:5000/api/algorithms/bernstein-vazirani",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              }
+            );
+
+            if (response.ok) {
+              const responseJson = await response.json();
+              const result = responseJson["result"];
+
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = `The hidden bitstring is ${result}`;
+            } else {
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = "Failed to run the algorithm";
+            }
+          } catch (error) {
+            console.error("Error: ", error);
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML = "Error occurred while running the algorithm";
+          }
+        }
+      </script>
+    </AlgorithmLayout>
   </main>
 </BaseLayout>
