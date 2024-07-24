@@ -76,6 +76,6 @@ def random_number_generator():
     if not num_bits:
         return jsonify({'error': 'The number of bits was not found in the request'}), 400
 
-    execute_random_number_generator(num_bits)
+    random_bitstring, quantum_circuit = execute_random_number_generator(num_bits)
 
-    return jsonify({'result': 'N/A'}), 200
+    return jsonify({'result': random_bitstring, 'circuit': str(quantum_circuit)}), 200

@@ -28,6 +28,7 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
       <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
       <div id="result" class="text-center mt-4"></div>
+      <pre id="circuit-diagram" class="text-center text-xl mt-2"></pre>
 
       <script lang="ts" is:inline>
         const MIN_BITS = 1;
@@ -61,27 +62,29 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
             if (response.ok) {
               const responseJson = await response.json();
               const randomNumber = responseJson["result"];
+              const circuit = responseJson["circuit"];
 
               const resultDiv = document.getElementById("result");
-              resultDiv.innerHTML = `
-                <h3 class="text-xl font-semibold">Generated Random Number:</h3>
-                <pre>${randomNumber}</pre>
-              `;
+              resultDiv.innerHTML = randomNumber;
+
+              const circuitDiv = document.getElementById("circuit-diagram");
+              circuitDiv.innerText = circuit;
 
               const resultsDiv = document.getElementById("algorithm-status");
               resultsDiv.innerHTML = "Random number generated successfully.";
             } else {
+              const responseJson = await response.json();
               const resultsDiv = document.getElementById("algorithm-status");
-              resultsDiv.innerHTML = "Failed to generate the random number";
+              resultsDiv.innerHTML = `Error: ${responseJson.error}`;
             }
           } catch (error) {
             console.error("Error: ", error);
             const resultsDiv = document.getElementById("algorithm-status");
-            resultsDiv.innerHTML =
-              "Error occurred while generating the random number";
+            resultsDiv.innerHTML = "Error occurred while generating the random number.";
           }
         }
       </script>
     </AlgorithmLayout>
   </main>
 </BaseLayout>
+
