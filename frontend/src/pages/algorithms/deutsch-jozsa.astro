@@ -101,6 +101,7 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
                 resultsDiv.innerHTML =
                   "The binary function outputs must be 0 or 1 and must not be empty";
                 invalidInput = true;
+                return;
               }
 
               booleanFunctionInputs[key] = value;
@@ -132,9 +133,15 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
               const resultsDiv = document.getElementById("algorithm-status");
               resultsDiv.innerHTML = `The function is ${result}`;
+            } else {
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = "Failed to run the algorithm";
             }
           } catch (error) {
             console.error("Error: ", error);
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML =
+              "An error occurred while running the algorithm";
           }
         }
       </script>

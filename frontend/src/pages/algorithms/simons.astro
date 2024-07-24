@@ -5,6 +5,150 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
 <BaseLayout title="Simon's Algorithm">
   <main>
-    <AlgorithmLayout title="Simon's Algorithm" />
+    <AlgorithmLayout title="Simon's Algorithm">
+      <form id="simon-form" class="flex flex-col items-center gap-2 mt-2">
+        <div>
+          <label class="text-end mr-2" for="num-qubits">Number of Qubits:</label
+          >
+          <input
+            class="w-12"
+            type="number"
+            id="num-qubits"
+            name="num_qubits"
+            min="1"
+            max="5"
+            onchange="generateInputFields()"
+          />
+        </div>
+        <div id="boolean-function-inputs"></div>
+        <input
+          class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xl"
+          type="button"
+          onclick="submitForm()"
+          value="Run Algorithm"
+        />
+      </form>
+
+      <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
+
+      <script lang="ts" is:inline>
+        const MIN_NUMBER_QUBITS = 1;
+        const MAX_NUMBER_QUBITS = 5;
+
+        function displayInvalidNumQubitsMessage() {
+          const resultsDiv = document.getElementById("algorithm-status");
+          resultsDiv.innerHTML = `The number of qubits must be between ${MIN_NUMBER_QUBITS} and ${MAX_NUMBER_QUBITS}`;
+        }
+
+        function generateInputFields() {
+          const numQubits = Number(document.getElementById("num-qubits").value);
+
+          if (numQubits < MIN_NUMBER_QUBITS || numQubits > MAX_NUMBER_QUBITS) {
+            displayInvalidNumQubitsMessage();
+            return;
+          }
+
+          const numInputs = Math.pow(2, numQubits);
+
+          const container = document.getElementById("boolean-function-inputs");
+          const resultsDiv = document.getElementById("algorithm-status");
+          container.innerHTML = "";
+          resultsDiv.innerHTML = "";
+
+          for (let i = 0; i < numInputs; i++) {
+            const binaryString = i.toString(2).padStart(numQubits, "0");
+            const inputWrapper = document.createElement("div");
+            inputWrapper.classList.add("input-wrapper");
+            inputWrapper.classList.add("mb-2");
+
+            const label = document.createElement("label");
+            label.innerText = `f(${binaryString}): `;
+            label.htmlFor = `input-${binaryString}`;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = `input-${binaryString}`;
+            input.name = `input_${binaryString}`;
+            input.classList.add("w-12");
+
+            inputWrapper.appendChild(label);
+            inputWrapper.appendChild(input);
+            container.appendChild(inputWrapper);
+          }
+        }
+
+        async function submitForm() {
+          let invalidInput = false;
+
+          const form = document.getElementById("simon-form");
+          const formData = new FormData(form);
+          const numQubits = Number(formData.get("num_qubits"));
+
+          if (numQubits < MIN_NUMBER_QUBITS || numQubits > MAX_NUMBER_QUBITS) {
+            displayInvalidNumQubitsMessage();
+            return;
+          }
+
+          const booleanFunctionInputs = {};
+          const numInputs = Math.pow(2, numQubits);
+
+          formData.forEach((value, key) => {
+            if (key.startsWith("input_")) {
+              if (value === "") {
+                const resultsDiv = document.getElementById("algorithm-status");
+                resultsDiv.innerHTML =
+                  "Not all of the inputs for the binary function have an output";
+                invalidInput = true;
+                return;
+              } else if (value.length !== numQubits || !/^[01]+$/.test(value)) {
+                const resultsDiv = document.getElementById("algorithm-status");
+                resultsDiv.innerHTML =
+                  "The binary function outputs must be valid binary strings and must not be empty";
+                invalidInput = true;
+                return;
+              }
+
+              booleanFunctionInputs[key] = value;
+            }
+          });
+
+          if (invalidInput) return;
+
+          const data = {
+            numQubits,
+            booleanFunctionInputs,
+          };
+
+          try {
+            const response = await fetch(
+              "http://localhost:5000/api/algorithms/simons",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              }
+            );
+
+            if (response.ok) {
+              const responseJson = await response.json();
+              const result = responseJson["result"];
+
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = `The hidden string is ${result}`;
+            } else {
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = "Failed to run the algorithm";
+            }
+          } catch (error) {
+            console.error("Error: ", error);
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML =
+              "An error occurred while running the algorithm";
+          }
+        }
+      </script>
+    </AlgorithmLayout>
   </main>
 </BaseLayout>
