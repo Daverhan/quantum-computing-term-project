@@ -80,4 +80,4 @@ def random_number_generator():
 
     random_bitstring, quantum_circuit = execute_random_number_generator(num_bits)
 
-    return jsonify({'result': random_bitstring, 'circuit': str(quantum_circuit)}), 200
+    return jsonify({'result': int(random_bitstring, 2), 'circuit': str(quantum_circuit)}), 200
