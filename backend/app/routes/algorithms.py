@@ -56,7 +56,7 @@ def quantum_fourier_transform():
 def bernstein_vazirani():
     request_json = request.get_json()
 
-    secret_bitstring = request_json.get('bitstring')
+    secret_bitstring = request_json.get('secret_bitstring')
 
     if not secret_bitstring:
         return jsonify({'error': 'The bitstring was not found in the request'}), 400
@@ -64,9 +64,7 @@ def bernstein_vazirani():
     secret_bitstring, quantum_circuit = execute_bernstein_vazirani(
         secret_bitstring)
 
-    print(quantum_circuit)
-
-    return jsonify({'result': f'{secret_bitstring}'}), 200
+    return jsonify({'result': f'{secret_bitstring}', 'circuit': str(quantum_circuit)}), 200
 
 
 @algorithms_bp.route('/random-number-generator', methods=['POST'])
