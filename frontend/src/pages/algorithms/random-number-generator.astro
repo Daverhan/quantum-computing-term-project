@@ -5,6 +5,83 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
 <BaseLayout title="Random Number Generator">
   <main>
-    <AlgorithmLayout title="Random Number Generator" />
+    <AlgorithmLayout title="Random Number Generator">
+      <form id="qrng-form" class="flex flex-col items-center gap-2 mt-2">
+        <div>
+          <label class="text-end mr-2" for="num-bits">Number of Bits:</label>
+          <input
+            class="w-12"
+            type="number"
+            id="num-bits"
+            name="num_bits"
+            min="1"
+            max="64"
+          />
+        </div>
+        <input
+          class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow text-xl"
+          type="button"
+          onclick="submitForm()"
+          value="Generate Random Number"
+        />
+      </form>
+
+      <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
+      <div id="result" class="text-center mt-4"></div>
+
+      <script lang="ts" is:inline>
+        const MIN_BITS = 1;
+        const MAX_BITS = 64;
+
+        async function submitForm() {
+          const form = document.getElementById("qrng-form");
+          const formData = new FormData(form);
+          const numBits = Number(formData.get("num_bits"));
+
+          if (numBits < MIN_BITS || numBits > MAX_BITS) {
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML = `The number of bits must be between ${MIN_BITS} and ${MAX_BITS}`;
+            return;
+          }
+
+          const data = { numBits };
+
+          try {
+            const response = await fetch(
+              "http://localhost:5000/api/algorithms/random-number-generator",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              }
+            );
+
+            if (response.ok) {
+              const responseJson = await response.json();
+              const randomNumber = responseJson["result"];
+
+              const resultDiv = document.getElementById("result");
+              resultDiv.innerHTML = `
+                <h3 class="text-xl font-semibold">Generated Random Number:</h3>
+                <pre>${randomNumber}</pre>
+              `;
+
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = "Random number generated successfully.";
+            } else {
+              const resultsDiv = document.getElementById("algorithm-status");
+              resultsDiv.innerHTML = "Failed to generate the random number";
+            }
+          } catch (error) {
+            console.error("Error: ", error);
+            const resultsDiv = document.getElementById("algorithm-status");
+            resultsDiv.innerHTML =
+              "Error occurred while generating the random number";
+          }
+        }
+      </script>
+    </AlgorithmLayout>
   </main>
 </BaseLayout>

@@ -3,6 +3,7 @@ from app.quantum_algorithms.bernstein_vazirani import execute_bernstein_vazirani
 from app.quantum_algorithms.deutsch_jozsa import execute_deutsch_jozsa
 from app.quantum_algorithms.simons import execute_simons
 from app.quantum_algorithms.quantum_fourier_transform import execute_quantum_fourier_transform
+from app.quantum_algorithms.random_number_generator import execute_random_number_generator
 
 algorithms_bp = Blueprint('algorithms', __name__)
 
@@ -66,3 +67,17 @@ def bernstein_vazirani():
     print(quantum_circuit)
 
     return jsonify({'result': f'{secret_bitstring}'}), 200
+
+
+@algorithms_bp.route('/random-number-generator', methods=['POST'])
+def random_number_generator():
+    request_json = request.get_json()
+
+    num_bits = request_json.get('numBits')
+
+    if not num_bits:
+        return jsonify({'error': 'The number of bits was not found in the request'}), 400
+
+    execute_random_number_generator(num_bits)
+
+    return jsonify({'result': 'N/A'}), 200
