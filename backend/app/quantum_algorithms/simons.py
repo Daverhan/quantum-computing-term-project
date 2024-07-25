@@ -6,7 +6,9 @@ def create_simon_oracle(num_qubits, hidden_string):
     oracle = QuantumCircuit(num_qubits)
     for qubit in range(num_qubits):
         if hidden_string[qubit] == '1':
-            oracle.cx(qubit, (qubit + 1) % num_qubits)
+            target_qubit = qubit + 1 % num_qubits
+            if qubit != target_qubit:
+                oracle.cx(qubit, target_qubit)
     return oracle
 
 
