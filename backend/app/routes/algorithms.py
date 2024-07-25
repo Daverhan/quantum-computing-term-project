@@ -51,7 +51,7 @@ def quantum_fourier_transform():
 
     new_bitstring, quantum_circuit = execute_quantum_fourier_transform(bitstring)
 
-    return jsonify({'result': new_bitstring, 'circuit': quantum_circuit}), 200
+    return jsonify({'result': new_bitstring, 'circuit': str(quantum_circuit)}), 200
 
 
 @algorithms_bp.route('/bernstein-vazirani', methods=['POST'])

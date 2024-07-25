@@ -22,6 +22,8 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
       </form>
 
       <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
+      <div id="result" class="text-center text-2xl mt-4"></div>
+      <pre id="circuit-diagram" class="text-center text-xl mt-2"></pre>
 
       <script lang="ts" is:inline>
         const MIN_LENGTH = 1;
@@ -48,7 +50,6 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
           }
 
           const data = {
-            numQubits,
             bitstring,
           };
 
@@ -67,9 +68,16 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
             if (response.ok) {
               const responseJson = await response.json();
               const result = responseJson["result"];
+              const circuit = responseJson["circuit"];
 
               const resultsDiv = document.getElementById("algorithm-status");
-              resultsDiv.innerHTML = `The result of the QFT is ${result}`;
+              resultsDiv.innerHTML = "Quantum Fourier Transform executed successfully.";
+
+              const resultDiv = document.getElementById("result");
+              resultDiv.innerHTML = `The result of the QFT is ${result}`;
+
+              const circuitDiv = document.getElementById("circuit-diagram");
+              circuitDiv.innerText = circuit;
             } else {
               const resultsDiv = document.getElementById("algorithm-status");
               resultsDiv.innerHTML = "Failed to run the algorithm";
@@ -84,3 +92,4 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
     </AlgorithmLayout>
   </main>
 </BaseLayout>
+
