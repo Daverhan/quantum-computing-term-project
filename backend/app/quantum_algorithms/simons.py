@@ -2,9 +2,17 @@ from qiskit import QuantumCircuit, transpile
 from qiskit_aer import Aer
 import numpy as np
 
+def create_simon_oracle(num_qubits, hidden_string):
+    oracle = QuantumCircuit(num_qubits)
+    for qubit in range(num_qubits):
+        if hidden_string[qubit] == '1':
+            oracle.cx(qubit, (qubit + 1) % num_qubits)
+    return oracle
+
 
 def execute_simons(num_qubits, string):
     qc = QuantumCircuit(2 * num_qubits, num_qubits)
+    oracle = create_simon_oracle(num_qubits, string)
     
     qc.h(range(num_qubits))
 
@@ -12,9 +20,7 @@ def execute_simons(num_qubits, string):
     
     qc.h(range(num_qubits))
 
-    for i, bit in enumerate(string):
-        if bit == '1':
-            qc.cx(i, i + num_qubits)
+    qc.append(oracle, range(num_qubits))
 
     qc.barrier()
     
@@ -29,5 +35,7 @@ def execute_simons(num_qubits, string):
 
     result = job.result()
     counts = result.get_counts()
+
+    hidden_string = max(counts, key=counts.get)
     
-    return counts, qc.draw()
+    return hidden_string, qc.draw()
