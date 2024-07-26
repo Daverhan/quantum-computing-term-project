@@ -30,12 +30,12 @@ def simons():
 
     num_qubits = int(request_json.get('numQubits'))
     boolean_function_inputs = request_json.get('booleanFunctionInputs')
-    string = ''.join(boolean_function_inputs.values())
+    function_values = {key.replace("input_", ""): value for key, value in boolean_function_inputs.items()}
 
     if not num_qubits:
         return jsonify({'error': 'The number of qubits was not found in the request'}), 400
 
-    hidden_string, quantum_circuit = execute_simons(num_qubits, string)
+    hidden_string, quantum_circuit = execute_simons(num_qubits, function_values)
 
     return jsonify({'result': hidden_string, 'circuit': str(quantum_circuit)}), 200
 
@@ -49,9 +49,9 @@ def quantum_fourier_transform():
     if not bitstring:
         return jsonify({'error': 'The bitstring was not found in the request'}), 400
 
-    new_bitstring, quantum_circuit = execute_quantum_fourier_transform(bitstring)
+    probabilities, quantum_circuit = execute_quantum_fourier_transform(bitstring)
 
-    return jsonify({'result': new_bitstring, 'circuit': quantum_circuit}), 200
+    return jsonify({'probabilities': probabilities, 'circuit': str(quantum_circuit)}), 200
 
 
 @algorithms_bp.route('/bernstein-vazirani', methods=['POST'])
@@ -80,4 +80,4 @@ def random_number_generator():
 
     random_bitstring, quantum_circuit = execute_random_number_generator(num_bits)
 
-    return jsonify({'result': random_bitstring, 'circuit': str(quantum_circuit)}), 200
+    return jsonify({'result': int(random_bitstring, 2), 'circuit': str(quantum_circuit)}), 200

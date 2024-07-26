@@ -22,6 +22,8 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
       </form>
 
       <div id="algorithm-status" class="text-center text-2xl mt-2"></div>
+      <pre id="circuit-diagram" class="text-center text-xl mt-2"></pre>
+      <div id="probabilities" class="text-center text-xl mt-2"></div>
 
       <script lang="ts" is:inline>
         const MIN_LENGTH = 1;
@@ -48,7 +50,6 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
           }
 
           const data = {
-            numQubits,
             bitstring,
           };
 
@@ -66,10 +67,18 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
 
             if (response.ok) {
               const responseJson = await response.json();
-              const result = responseJson["result"];
+              const circuit = responseJson["circuit"];
+              const probabilities = responseJson["probabilities"];
 
               const resultsDiv = document.getElementById("algorithm-status");
-              resultsDiv.innerHTML = `The result of the QFT is ${result}`;
+              resultsDiv.innerHTML = "Quantum Fourier Transform executed successfully.";
+
+              const circuitDiv = document.getElementById("circuit-diagram");
+              circuitDiv.innerText = circuit;
+
+              const probabilitiesDiv = document.getElementById("probabilities");
+              probabilitiesDiv.innerHTML = "Probabilities:<br>" + 
+                Object.entries(probabilities).map(([state, prob]) => `${state}: ${(prob * 100).toFixed(2)}%`).join('<br>');
             } else {
               const resultsDiv = document.getElementById("algorithm-status");
               resultsDiv.innerHTML = "Failed to run the algorithm";
@@ -84,3 +93,4 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
     </AlgorithmLayout>
   </main>
 </BaseLayout>
+
