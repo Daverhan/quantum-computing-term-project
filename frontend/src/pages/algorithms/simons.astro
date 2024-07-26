@@ -102,9 +102,6 @@ import AlgorithmLayout from "../../layouts/AlgorithmLayout.astro";
                 invalidInput = true;
                 return;
               } else if (value.length != numQubits || !/^[01]+$/.test(value)) {
-                console.log("value is " + value);
-                console.log("value.length is " + value.length);
-                console.log("Number of qubits is " + numQubits);
                 const resultsDiv = document.getElementById("algorithm-status");
                 resultsDiv.innerHTML =
                   "The binary function outputs must be valid binary strings and must not be empty";

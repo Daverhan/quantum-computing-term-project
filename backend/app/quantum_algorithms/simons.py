@@ -1,7 +1,5 @@
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import Aer
-import numpy as np
-from sympy import Matrix
 
 def create_simon_oracle(num_qubits, function_values):
     oracle = QuantumCircuit(num_qubits * 2)
