@@ -49,9 +49,9 @@ def quantum_fourier_transform():
     if not bitstring:
         return jsonify({'error': 'The bitstring was not found in the request'}), 400
 
-    new_bitstring, quantum_circuit = execute_quantum_fourier_transform(bitstring)
+    probabilities, quantum_circuit = execute_quantum_fourier_transform(bitstring)
 
-    return jsonify({'result': new_bitstring, 'circuit': str(quantum_circuit)}), 200
+    return jsonify({'probabilities': probabilities, 'circuit': str(quantum_circuit)}), 200
 
 
 @algorithms_bp.route('/bernstein-vazirani', methods=['POST'])

@@ -30,8 +30,10 @@ def execute_quantum_fourier_transform(bitstring):
 
     result = job.result()
     counts = result.get_counts()
+    total_counts = sum(counts.values())
+    print(total_counts)
+    probabilities = {state: count / total_counts for state, count in counts.items()}
+    print(probabilities) 
     
-    new_bitstring = max(counts, key=counts.get)
-    
-    return new_bitstring, qc.draw()
+    return probabilities, qc.draw()
 
