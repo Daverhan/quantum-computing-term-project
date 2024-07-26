@@ -30,12 +30,12 @@ def simons():
 
     num_qubits = int(request_json.get('numQubits'))
     boolean_function_inputs = request_json.get('booleanFunctionInputs')
-    string = ''.join(boolean_function_inputs.values())
+    function_values = {key.replace("input_", ""): value for key, value in boolean_function_inputs.items()}
 
     if not num_qubits:
         return jsonify({'error': 'The number of qubits was not found in the request'}), 400
 
-    hidden_string, quantum_circuit = execute_simons(num_qubits, string)
+    hidden_string, quantum_circuit = execute_simons(num_qubits, function_values)
 
     return jsonify({'result': hidden_string, 'circuit': str(quantum_circuit)}), 200
 
